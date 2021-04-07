@@ -2,33 +2,18 @@
 #ifndef _SHAREDMEMORY_H_
 #define	_SHAREDMEMORY_H_
 
+#include "pch.h"
 #include <Windows.h>
 #include <string>
 #include <iostream>
 
-#pragma pack(push, 1)
-typedef struct Header
-{
-	bool isReceived;
-	int size;
-	int structSize;
-};
-#pragma pack(pop, 1)
-
-#pragma pack(push, 1)
-typedef struct Data : public Header
-{
-	int* integers;
-	float* floats;
-};
-#pragma pack(pop, 1)
-
 namespace SharedMemory
 {
 	//@ TODO : validation
+	// bytes
 	const SIZE_T MAX_SIZE = 100000;
 
-	class SharedMemory
+	class DllExport SharedMemory
 	{
 	public:
 		SharedMemory(std::wstring name, void * data, bool isClient=false);

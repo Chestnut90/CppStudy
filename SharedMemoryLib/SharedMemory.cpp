@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "SharedMemory.h"
 
 SharedMemory::SharedMemory::SharedMemory(std::wstring name, void * data, bool isClient)
@@ -13,19 +14,19 @@ SharedMemory::SharedMemory::~SharedMemory()
 	this->Destroy();
 }
 
+//@ Create Shared Memory
 bool SharedMemory::SharedMemory::Create()
 {
 	DWORD lastError;
-	bool result = true;
 	try
 	{
-		this->mapFile = isClient ? this->OpenFileMap() : this->MakeFileMap();
+		this->mapFile = isClient ? OpenFileMap() : MakeFileMap();
 		if (mapFile == NULL)
 		{
 			// TODO : error code
 			DWORD lastError = GetLastError();
 			std::string error = "Failed to create file mapping. Error {%d}.\n";
-			throw new std::exception(error.c_str());
+			throw std::exception(error.c_str());
 		}
 
 		// Map View of File
@@ -47,18 +48,20 @@ bool SharedMemory::SharedMemory::Create()
 			// TODO : error code
 			lastError = GetLastError();
 			std::string error = "Failed to Map view of file. Error {%d}.\n";
-			throw new std::exception(error.c_str());
+			throw std::exception(error.c_str());
 		}
+		isCreated = true;
 	}
 	catch (const std::exception& e)
 	{
 		printf(e.what());
-		result = false;
+		isCreated = false;
 	}
 
-	return result;
+	return isCreated;
 }
 
+//@ Destroy Shared Memory
 void SharedMemory::SharedMemory::Destroy()
 {
 	if (!isCreated)
@@ -70,6 +73,7 @@ void SharedMemory::SharedMemory::Destroy()
 	CloseHandle(mapFile);
 }
 
+//@ Set data with size
 void SharedMemory::SharedMemory::SetData(void * data, long size)
 {
 	if (isClient)
@@ -80,6 +84,7 @@ void SharedMemory::SharedMemory::SetData(void * data, long size)
 	CopyMemory(this->data, data, size);
 }
 
+//@ Get data
 void* SharedMemory::SharedMemory::GetData()
 {
 	if (!isClient)
